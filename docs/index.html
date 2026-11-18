@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SR-HazardMaker</title>
 <meta name="description" content="Turn ground-motion data into hazard layers for the ShakeReady map. Runs in your browser; nothing is uploaded.">
+<meta name="author" content="E. Taciroglu">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230F1A2B'/%3E%3Cpath d='M5.3 19.6 L5.6 19.6 L6 19.7 L6.4 19.7 L6.8 19.8 L7.1 20 L7.5 20.2 L7.9 20.4 L8.2 20.8 L8.6 21.2 L9 21.7 L9.3 22.3 L9.7 22.9 L10.1 23.6 L10.4 24.3 L10.8 24.8 L11.2 25.2 L11.6 25.2 L11.9 25 L12.3 24.3 L12.7 23.1 L13 21.4 L13.4 19.4 L13.8 17 L14.2 14.6 L14.5 12.1 L14.9 10 L15.3 8.2 L15.6 7.1 L16 6.7 L16.4 7.1 L16.7 8.2 L17.1 10 L17.5 12.1 L17.9 14.6 L18.2 17 L18.6 19.4 L19 21.4 L19.3 23.1 L19.7 24.3 L20.1 25 L20.4 25.2 L20.8 25.2 L21.2 24.8 L21.5 24.3 L21.9 23.6 L22.3 22.9 L22.7 22.3 L23 21.7 L23.4 21.2 L23.8 20.8 L24.1 20.4 L24.5 20.2 L24.9 20 L25.2 19.8 L25.6 19.7 L26 19.7 L26.4 19.6 L26.7 19.6' stroke='%23F9A03F' stroke-width='2.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -26,7 +27,8 @@ a{color:#1D5FA8}
 .top nav a:hover{color:#EFF3F6;background:#1B2B45}
 main{max-width:880px;margin:0 auto;padding:44px 22px 60px}
 main h1{font-size:34px;font-weight:700;margin:0 0 8px;letter-spacing:-.01em}
-.lede{font-size:17px;color:#5F7183;margin:0 0 36px;max-width:62ch}
+.lede{font-size:17px;color:#5F7183;margin:0 0 10px;max-width:62ch}
+.by{font-size:14.5px;color:#5F7183;margin:0 0 34px}
 footer{border-top:1px solid #D8E0E7;color:#5F7183;font-size:13.5px}
 footer .inner{max-width:880px;margin:0 auto;padding:22px}
 </style>
@@ -44,6 +46,7 @@ footer .inner{max-width:880px;margin:0 auto;padding:22px}
 <main>
   <h1>SR-HazardMaker</h1>
   <p class="lede">Turn ground-motion data into a hazard layer the ShakeReady map can use. Your files are read on your own computer. Nothing is uploaded.</p>
+  <p class="by">Made by E. Taciroglu, University of California, Los Angeles.</p>
   <div id="app"></div>
   <section style="border-top:1px solid #D8E0E7;margin-top:26px;padding-top:26px">
     <h2 style="font-size:21px;margin:0 0 12px">Also from the command line</h2>
@@ -52,7 +55,7 @@ footer .inner{max-width:880px;margin:0 auto;padding:22px}
     <p>A scenario builder: describe an earthquake, choose a ground-motion model and a ground condition, and SR-HazardMaker will compute the shaking.</p>
   </section>
 </main>
-<footer><div class="inner">SR-HazardMaker <span id="ver"></span> · part of <a href="https://trg-ucla.github.io/ShakeReady/">ShakeReady</a>, tools and data for quantifying and improving seismic resilience · <a href="https://github.com/TRG-UCLA/SR-HazardMaker/blob/main/docs/format.md">the layer format</a></div></footer>
+<footer><div class="inner">SR-HazardMaker <span id="ver"></span>, made by E. Taciroglu · part of <a href="https://trg-ucla.github.io/ShakeReady/">ShakeReady</a>, tools and data for quantifying and improving seismic resilience · <a href="https://github.com/TRG-UCLA/SR-HazardMaker/blob/main/docs/format.md">the layer format</a></div></footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script src="sr-hazard.js"></script>
 <script src="converters.js"></script>

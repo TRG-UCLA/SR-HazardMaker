@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+message: "If you use SR-HazardMaker, please cite it as below."
+title: "SR-HazardMaker"
+type: software
+authors:
+  - family-names: Taciroglu
+    given-names: E.
+    affiliation: "University of California, Los Angeles"
+version: 0.1.1
+date-released: 2026-11-18
+url: "https://trg-ucla.github.io/SR-HazardMaker/"
+repository-code: "https://github.com/TRG-UCLA/SR-HazardMaker"
+abstract: "Turns ground-motion data (USGS National Seismic Hazard Model tables, USGS ShakeMaps, and tables of points) into hazard layers for the ShakeReady map, with checks and a record of each layer's source. A browser app and a command-line tool that are tested to produce the same layers."
+keywords:
+  - earthquake
+  - seismic hazard
+  - ground motion
+  - ShakeMap
+  - ShakeReady

@@ -1,5 +1,10 @@
 # Changes
 
+## 0.1.1 (2026-11-18)
+
+- Names the maker, E. Taciroglu: in the guide, the package details, the page, a `CITATION.cff`, and in
+  the `provenance` of every layer written (`made_with`).
+
 ## 0.1.0 (2026-11-18)
 
 First release.

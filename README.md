@@ -1,5 +1,7 @@
 # SR-HazardMaker
 
+Made by **E. Taciroglu**, University of California, Los Angeles.
+
 SR-HazardMaker turns ground-motion data into **hazard layers** for the
 [ShakeReady](https://trg-ucla.github.io/ShakeReady/) map: gridded shaking that the map can display
 and use to estimate damage to bridges and buildings. It reads the files that ground motions
@@ -116,16 +118,24 @@ ground motions are used as given, with no adjustment for local soil.
 
 ## Status
 
-Version 0.1.0. Next: a scenario builder that computes the shaking of a described earthquake with a
+Version 0.1.1. Next: a scenario builder that computes the shaking of a described earthquake with a
 ground-motion model.
-
-## License and citation
-
-To be set by the project lead. Until a license is added here, the code is published for reading
-and evaluation only.
 
 ## Who made this
 
-Built for the ShakeReady project by the Taciroglu Research Group at UCLA. The code was written
-with an AI assistant (Claude, made by Anthropic) working at the direction of the project lead, and
-is covered by the tests described above.
+SR-HazardMaker was made by E. Taciroglu (Taciroglu Research Group, University of California, Los
+Angeles) for the ShakeReady project. The code was written with an AI assistant (Claude, made by
+Anthropic) under his direction, and is covered by the tests described above.
+
+Every layer the tool writes names the tool and its maker in its `provenance`.
+
+## Citing
+
+Taciroglu, E. (2026). *SR-HazardMaker* (version 0.1.1) [Computer software].
+https://github.com/TRG-UCLA/SR-HazardMaker
+
+The same information is in `CITATION.cff`, which GitHub offers under "Cite this repository".
+
+## License
+
+Not yet set. Until a license is added here, the code is published for reading and evaluation only.

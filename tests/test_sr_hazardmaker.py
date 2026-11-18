@@ -387,6 +387,14 @@ class TestBrowserConvertersAgree(Base):
             if not errors:
                 self.assertEqual(r["summary"], grid.summary(h))
 
+    def test_every_layer_names_the_tool_and_its_maker(self):
+        py = self.nshm_layer(list(self.tables.values()))[0]
+        js = self.js("nshm", {"files": list(self.tables.values()), "meta": META})["layer"]
+        for layer in (py, js):
+            self.assertEqual(layer["provenance"]["made_with"], grid.MADE_WITH)
+            self.assertIn("E. Taciroglu", layer["provenance"]["made_with"])
+        self.assertIn("browser", js["provenance"]["generator"])
+
     def test_identifier_from_title(self):
         strings = ["USGS National Seismic Hazard Model 2023, revision 2, Vs30 760 m/s", "M 7.1 Ridgecrest — 2019", "  Çalışma: İstanbul senaryosu  ", "a" * 80, "---"]
         self.assertEqual(self.js("slug", {"strings": strings}), [cli.slug(s) for s in strings])

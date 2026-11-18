@@ -23,7 +23,7 @@ writes it.
 | `default_level` | the `id` of the level a map should select first |
 | `levels` | a list; each entry has `id`, `label`, and `measures` |
 | `source` | where the values came from (see below) |
-| `provenance` | written by the tool: what made the file, when, and any processing notes |
+| `provenance` | written by the tool: what made the file (`generator`, `made_with`), when, and any processing notes |
 
 ### Two kinds
 
