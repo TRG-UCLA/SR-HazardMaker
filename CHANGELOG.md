@@ -1,5 +1,11 @@
 # Changes
 
+## 0.2.0 (2026-11-18)
+
+- Licensed under the BSD 3-Clause license: free to use, change and share.
+- How to cite the tool: `sr-hazardmaker cite`, a block at the foot of the browser page with copy
+  buttons, the guide, and `CITATION.cff`. The Python and browser versions give the same citation.
+
 ## 0.1.1 (2026-11-18)
 
 - Names the maker, E. Taciroglu: in the guide, the package details, the page, a `CITATION.cff`, and in

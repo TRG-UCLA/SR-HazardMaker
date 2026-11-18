@@ -25,6 +25,8 @@ const asFile = p => new File([fs.readFileSync(p)], path.basename(p));
   } else if (command === "valueat"){
     const h = JSON.parse(fs.readFileSync(A.layer, "utf8")), values = h.levels[0].measures.SA1P0;
     result = A.points.map(([lat, lon]) => H.valueAt(h, values, lat, lon));
+  } else if (command === "cite"){
+    result = {citation: H.citation(), version: H.VERSION};
   } else if (command === "slug"){
     result = A.strings.map(C.slug);
   } else throw new Error("unknown command " + command);

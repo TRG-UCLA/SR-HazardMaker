@@ -28,6 +28,7 @@ sr-hazardmaker table simulation.csv --sa10 "SA(1.0)" --units cm/s2 \
     --title "My scenario" --site "As computed, site-specific" \
     --source-title "Simulation of the ... earthquake" --publisher "A. Researcher"
 sr-hazardmaker check my-layer.json
+sr-hazardmaker cite
 ```
 
 Python 3.9 or later; no other dependencies. Without installing, run it from a copy of this
@@ -118,7 +119,7 @@ ground motions are used as given, with no adjustment for local soil.
 
 ## Status
 
-Version 0.1.1. Next: a scenario builder that computes the shaking of a described earthquake with a
+Version 0.2.0. Next: a scenario builder that computes the shaking of a described earthquake with a
 ground-motion model.
 
 ## Who made this
@@ -129,13 +130,27 @@ Anthropic) under his direction, and is covered by the tests described above.
 
 Every layer the tool writes names the tool and its maker in its `provenance`.
 
-## Citing
+## Free to use, and how to cite it
 
-Taciroglu, E. (2026). *SR-HazardMaker* (version 0.1.1) [Computer software].
-https://github.com/TRG-UCLA/SR-HazardMaker
+SR-HazardMaker is free for anyone to use, change and share, including in commercial work, under
+the [BSD 3-Clause license](LICENSE). The license asks only that the copyright notice stays with
+copies of the code, and that the maker's name is not used to endorse things built from it.
 
-The same information is in `CITATION.cff`, which GitHub offers under "Cite this repository".
+If SR-HazardMaker helps your work, please cite it:
 
-## License
+> Taciroglu, E. (2026). *SR-HazardMaker* (Version 0.2.0) [Computer software].
+> https://github.com/TRG-UCLA/SR-HazardMaker
 
-Not yet set. Until a license is added here, the code is published for reading and evaluation only.
+```bibtex
+@software{taciroglu_sr_hazardmaker,
+  author  = {Taciroglu, E.},
+  title   = {{SR-HazardMaker}},
+  year    = {2026},
+  version = {0.2.0},
+  url     = {https://github.com/TRG-UCLA/SR-HazardMaker}
+}
+```
+
+The citation is also available from GitHub's "Cite this repository" button (from `CITATION.cff`),
+from the command line (`sr-hazardmaker cite`), and at the foot of the browser page. Cite the
+version you used: it is printed by `sr-hazardmaker --version` and written into every layer.

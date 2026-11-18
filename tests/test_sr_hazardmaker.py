@@ -10,6 +10,7 @@ import csv, io, json, math, os, random, shutil, subprocess, sys, tempfile, unitt
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "src"))
+import sr_hazardmaker                                              # noqa: E402
 from sr_hazardmaker import cli, grid, nshm, shakemap, table   # noqa: E402
 
 NODE = shutil.which("node")
@@ -294,6 +295,16 @@ class TestFormat(Base):
         self.assertTrue(any("Check the units" in w for w in grid.check(units)[1]))
 
 
+class TestRelease(unittest.TestCase):
+    """The version and the citation must agree everywhere they are written down."""
+    def test_version_citation_and_license_agree(self):
+        v = sr_hazardmaker.__version__
+        for path, needle in (("pyproject.toml", f'version = "{v}"'), ("CITATION.cff", f"version: {v}"), ("README.md", f"(Version {v})"),
+                             ("README.md", sr_hazardmaker.citation()["bibtex"]), ("CHANGELOG.md", f"## {v} "),
+                             ("LICENSE", "Copyright (c) 2026, E. Taciroglu"), ("CITATION.cff", "license: BSD-3-Clause"), ("pyproject.toml", "BSD-3-Clause")):
+            self.assertIn(needle, read(os.path.join(ROOT, path)), f"{path} should contain {needle!r}")
+
+
 class TestCommandLine(Base):
     def run_cli(self, *argv):
         out, err = io.StringIO(), io.StringIO()
@@ -394,6 +405,13 @@ class TestBrowserConvertersAgree(Base):
             self.assertEqual(layer["provenance"]["made_with"], grid.MADE_WITH)
             self.assertIn("E. Taciroglu", layer["provenance"]["made_with"])
         self.assertIn("browser", js["provenance"]["generator"])
+
+    def test_same_citation_and_version(self):
+        r = self.js("cite", {})
+        self.assertEqual(r["citation"], sr_hazardmaker.citation())
+        self.assertEqual(r["version"], sr_hazardmaker.__version__)
+        self.assertIn("Taciroglu, E.", r["citation"]["text"])
+        self.assertIn(sr_hazardmaker.__version__, r["citation"]["bibtex"])
 
     def test_identifier_from_title(self):
         strings = ["USGS National Seismic Hazard Model 2023, revision 2, Vs30 760 m/s", "M 7.1 Ridgecrest — 2019", "  Çalışma: İstanbul senaryosu  ", "a" * 80, "---"]

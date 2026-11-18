@@ -4,10 +4,17 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sr-hazardmaker"
-version = "0.1.1"
+version = "0.2.0"
 description = "Turn ground-motion data into hazard layers for the ShakeReady map"
 readme = "README.md"
 authors = [{name = "E. Taciroglu"}]
+license = {text = "BSD-3-Clause"}
+classifiers = [
+  "License :: OSI Approved :: BSD License",
+  "Programming Language :: Python :: 3",
+  "Topic :: Scientific/Engineering",
+  "Intended Audience :: Science/Research",
+]
 requires-python = ">=3.9"
 dependencies = []
 keywords = ["earthquake", "seismic hazard", "ShakeMap", "ground motion", "ShakeReady"]
