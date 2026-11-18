@@ -1,0 +1,131 @@
+# SR-HazardMaker
+
+SR-HazardMaker turns ground-motion data into **hazard layers** for the
+[ShakeReady](https://trg-ucla.github.io/ShakeReady/) map: gridded shaking that the map can display
+and use to estimate damage to bridges and buildings. It reads the files that ground motions
+usually come in, checks them, and writes one small file in a documented format, with a record of
+where the values came from.
+
+It is part of ShakeReady, a collaboration of universities and research centers that publishes
+tools and data for quantifying and improving seismic resilience.
+
+## Three ways to use it
+
+**In a browser.** Open <https://trg-ucla.github.io/SR-HazardMaker/>, choose what you have, and add
+the file. Files are read on your own computer; nothing is uploaded. The page checks the result,
+draws it on a map, and gives you the layer file.
+
+**From the command line.**
+
+```
+pip install git+https://github.com/TRG-UCLA/SR-HazardMaker
+
+sr-hazardmaker nshm conus_2023.R2-MPRS-scBC-vs760-0p05.zip
+sr-hazardmaker shakemap grid.xml
+sr-hazardmaker table simulation.csv --sa10 "SA(1.0)" --units cm/s2 \
+    --title "My scenario" --site "As computed, site-specific" \
+    --source-title "Simulation of the ... earthquake" --publisher "A. Researcher"
+sr-hazardmaker check my-layer.json
+```
+
+Python 3.9 or later; no other dependencies. Without installing, run it from a copy of this
+repository as `PYTHONPATH=src python -m sr_hazardmaker ...`.
+
+**From Python.**
+
+```python
+from sr_hazardmaker import grid, shakemap
+
+text, name = shakemap.read_text("grid.xml")
+parsed = shakemap.parse(text, name)
+meta = shakemap.defaults(parsed)                     # title, identifier, source, read from the file
+meta["source"]["retrieved_utc"] = "2026-11-18"
+layer = shakemap.build(parsed, meta, name)
+errors, warnings = grid.check(layer)
+value = grid.value_at(layer, layer["levels"][0]["measures"]["SA1P0"], 34.05, -118.25)   # in g
+```
+
+## What goes in
+
+| Input | Notes |
+|---|---|
+| **USGS National Seismic Hazard Model** | The archive for one site condition, or the `map.csv` tables for SA1P0, SA0P3 and PGA from inside it. The current release is [doi:10.5066/P14VGAV4](https://doi.org/10.5066/P14VGAV4). The archive is large (about 2 GB); only the three tables needed are read from it. The result is cropped to California and its surroundings. |
+| **USGS ShakeMap** | The `grid.xml` of a recorded or scenario earthquake, zipped or not. Field names and units are read from the file, since both have changed between versions of the ShakeMap software. |
+| **A table of points** | A CSV with longitude, latitude and spectral acceleration at 1.0 second, and optionally at 0.3 second and peak ground acceleration, in g, %g, cm/s² or m/s². The points must form an evenly spaced grid. Scattered points are not supported yet. |
+
+## What comes out
+
+- `<id>.json`, the layer, in the format described in [docs/format.md](docs/format.md);
+- `<id>.index-entry.json`, the layer's entry for a hazard repository's index, with its checksum.
+
+Every layer is checked before it is written: structure, units, coverage, and whether it says where
+it came from.
+
+## A layer must say where it comes from
+
+SR-HazardMaker will not build a layer without a title, a ground condition, a source title, a
+publisher or author, and a date. It fills these in itself only when the file identifies them, as a
+ShakeMap does. This is deliberate: a damage estimate is only as traceable as the ground motions
+behind it, and every table the ShakeReady map produces cites the layer it used.
+
+## Using a layer on the ShakeReady map
+
+- **Straight away, on your own computer.** On the map, under Hazard layer, choose "Use a layer file
+  from my computer". On the ShakeReady site's own copy of SR-HazardMaker there is also a button
+  that keeps the layer in your browser and opens the map on it. Either way the layer stays on your
+  computer, is marked as yours and unpublished, and any damage table made from it says so.
+- **For everyone.** Send the layer file and its index entry to the ShakeReady maintainers, or open
+  a pull request adding them to the
+  [ShakeReady hazard repository](https://github.com/TRG-UCLA/ShakeReady/tree/main/hazards). A layer
+  is reviewed before it is listed.
+
+## How it is tested
+
+Run the tests from the repository root:
+
+```
+python -m unittest discover -s tests -v
+```
+
+- Each converter is checked value by value against the file it read, including unit conversion,
+  rows given in any order, and cells left empty.
+- The Python converters and the browser converters are run on the same inputs and must produce the
+  same layer, and the two implementations of reading a value at a point must agree exactly at
+  thousands of random points. These tests need Node.js 20 or later and are skipped without it.
+- An archive must give the same layer as its tables given separately, including in ZIP64 form.
+- All ground-motion values in the tests are made up inside the test file.
+
+Before release 0.1.0 the ShakeMap converter was also run on seven real USGS ShakeMap files from
+three versions of the ShakeMap software (shortened samples in the OpenQuake engine's test data),
+which is how the two spellings of percent-g, `pctg` and `%g`, came to be handled. The browser page
+was tested with a 290 MB archive, and a layer made with it was used on the ShakeReady map, where
+the damage table matched an independent calculation for all 25,974 California bridges.
+
+One thing has not been tested: the real USGS hazard-model archive, which the tool was built for
+from a description of its layout. If its folder or column names differ, SR-HazardMaker reports
+what it found instead of guessing.
+
+## Choices and limits
+
+The choices made in converting (precision, cropping, units, what counts as a regular grid) are
+recorded with their reasons on ShakeReady's
+[Methods page](https://trg-ucla.github.io/ShakeReady/methods.html#hazardmaker), as HM-01 to HM-08.
+In brief: values are stored to 0.001 g; USGS hazard-model tables are cropped to latitude 32.0 to
+42.5 north and longitude 125.0 to 113.5 west; a ShakeMap is kept whole and labeled site-specific;
+ground motions are used as given, with no adjustment for local soil.
+
+## Status
+
+Version 0.1.0. Next: a scenario builder that computes the shaking of a described earthquake with a
+ground-motion model.
+
+## License and citation
+
+To be set by the project lead. Until a license is added here, the code is published for reading
+and evaluation only.
+
+## Who made this
+
+Built for the ShakeReady project by the Taciroglu Research Group at UCLA. The code was written
+with an AI assistant (Claude, made by Anthropic) working at the direction of the project lead, and
+is covered by the tests described above.
