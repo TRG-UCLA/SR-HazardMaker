@@ -1,5 +1,10 @@
 # Changes
 
+## 0.3.1 (2026-11-19)
+
+- SR-HazardMaker has a DOI: [10.5281/zenodo.24356049](https://doi.org/10.5281/zenodo.24356049), for all versions. It is in
+  the citation everywhere it is given, in `CITATION.cff`, and in the record each layer carries.
+
 ## 0.3.0 (2026-11-19)
 
 - **Scenario builder.** Describe an earthquake (magnitude, style of faulting, a fault trace, dip and

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sr-hazardmaker"
-version = "0.3.0"
+version = "0.3.1"
 description = "Turn ground-motion data into hazard layers for the ShakeReady map"
 readme = "README.md"
 authors = [{name = "E. Taciroglu"}]
@@ -22,6 +22,7 @@ keywords = ["earthquake", "seismic hazard", "ShakeMap", "ground motion", "ShakeR
 [project.urls]
 Homepage = "https://trg-ucla.github.io/SR-HazardMaker/"
 Repository = "https://github.com/TRG-UCLA/SR-HazardMaker"
+DOI = "https://doi.org/10.5281/zenodo.24356049"
 
 [project.scripts]
 sr-hazardmaker = "sr_hazardmaker.cli:main"

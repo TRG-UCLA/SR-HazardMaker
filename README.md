@@ -1,5 +1,7 @@
 # SR-HazardMaker
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24356049.svg)](https://doi.org/10.5281/zenodo.24356049)
+
 Made by **E. Taciroglu**, University of California, Los Angeles.
 
 SR-HazardMaker makes **hazard layers** for the
@@ -153,7 +155,7 @@ ground motions are used as given, with no adjustment for local soil.
 
 ## Status
 
-Version 0.3.0. Next for the scenario builder: more ground-motion models, choosing the fault on a
+Version 0.3.1. Next for the scenario builder: more ground-motion models, choosing the fault on a
 map, and ground conditions that vary from place to place.
 
 ## Who made this
@@ -172,19 +174,24 @@ copies of the code, and that the maker's name is not used to endorse things buil
 
 If SR-HazardMaker helps your work, please cite it:
 
-> Taciroglu, E. (2026). *SR-HazardMaker* (Version 0.3.0) [Computer software].
-> https://github.com/TRG-UCLA/SR-HazardMaker
+> Taciroglu, E. (2026). *SR-HazardMaker* (Version 0.3.1) [Computer software].
+> https://doi.org/10.5281/zenodo.24356049
 
 ```bibtex
 @software{taciroglu_sr_hazardmaker,
   author  = {Taciroglu, E.},
   title   = {{SR-HazardMaker}},
   year    = {2026},
-  version = {0.3.0},
+  version = {0.3.1},
+  doi     = {10.5281/zenodo.24356049},
   url     = {https://github.com/TRG-UCLA/SR-HazardMaker}
 }
 ```
 
+That DOI stands for SR-HazardMaker across all its versions and always leads to the latest one. Each
+release is archived on [Zenodo](https://doi.org/10.5281/zenodo.24356049) with a DOI of its own, listed on the
+record. To point at the exact version you used, cite that version's DOI and give the version
+number, which `sr-hazardmaker --version` prints and every layer carries.
+
 The citation is also available from GitHub's "Cite this repository" button (from `CITATION.cff`),
-from the command line (`sr-hazardmaker cite`), and at the foot of the browser page. Cite the
-version you used: it is printed by `sr-hazardmaker --version` and written into every layer.
+from the command line (`sr-hazardmaker cite`), and at the foot of the browser page.

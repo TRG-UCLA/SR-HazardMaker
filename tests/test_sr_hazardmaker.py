@@ -451,7 +451,9 @@ class TestRelease(unittest.TestCase):
         v = sr_hazardmaker.__version__
         for path, needle in (("pyproject.toml", f'version = "{v}"'), ("CITATION.cff", f"version: {v}"), ("README.md", f"(Version {v})"),
                              ("README.md", sr_hazardmaker.citation()["bibtex"]), ("CHANGELOG.md", f"## {v} "),
-                             ("LICENSE", "Copyright (c) 2026, E. Taciroglu"), ("CITATION.cff", "license: BSD-3-Clause"), ("pyproject.toml", "BSD-3-Clause")):
+                             ("LICENSE", "Copyright (c) 2026, E. Taciroglu"), ("CITATION.cff", "license: BSD-3-Clause"), ("pyproject.toml", "BSD-3-Clause"),
+                             ("CITATION.cff", f"doi: {sr_hazardmaker.__doi__}"), ("README.md", f"https://doi.org/{sr_hazardmaker.__doi__}"),
+                             ("README.md", sr_hazardmaker.citation()["bibtex"])):
             self.assertIn(needle, read(os.path.join(ROOT, path)), f"{path} should contain {needle!r}")
 
 
@@ -574,6 +576,10 @@ class TestBrowserConvertersAgree(Base):
         self.assertEqual(r["citation"], sr_hazardmaker.citation())
         self.assertEqual(r["version"], sr_hazardmaker.__version__)
         self.assertIn("Taciroglu, E.", r["citation"]["text"])
+        self.assertRegex(sr_hazardmaker.__doi__, r"^10\.5281/zenodo\.\d+$")
+        self.assertIn("https://doi.org/" + sr_hazardmaker.__doi__, r["citation"]["text"])
+        self.assertIn("doi     = {" + sr_hazardmaker.__doi__ + "}", r["citation"]["bibtex"])
+        self.assertIn(sr_hazardmaker.__doi__, grid.MADE_WITH)
         self.assertIn(sr_hazardmaker.__version__, r["citation"]["bibtex"])
 
     def test_ground_motion_model(self):
