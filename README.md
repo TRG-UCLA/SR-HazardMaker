@@ -119,7 +119,7 @@ ground motions are used as given, with no adjustment for local soil.
 
 ## Status
 
-Version 0.2.0. Next: a scenario builder that computes the shaking of a described earthquake with a
+Version 0.2.1. Next: a scenario builder that computes the shaking of a described earthquake with a
 ground-motion model.
 
 ## Who made this
@@ -138,7 +138,7 @@ copies of the code, and that the maker's name is not used to endorse things buil
 
 If SR-HazardMaker helps your work, please cite it:
 
-> Taciroglu, E. (2026). *SR-HazardMaker* (Version 0.2.0) [Computer software].
+> Taciroglu, E. (2026). *SR-HazardMaker* (Version 0.2.1) [Computer software].
 > https://github.com/TRG-UCLA/SR-HazardMaker
 
 ```bibtex
@@ -146,7 +146,7 @@ If SR-HazardMaker helps your work, please cite it:
   author  = {Taciroglu, E.},
   title   = {{SR-HazardMaker}},
   year    = {2026},
-  version = {0.2.0},
+  version = {0.2.1},
   url     = {https://github.com/TRG-UCLA/SR-HazardMaker}
 }
 ```

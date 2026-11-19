@@ -1,5 +1,9 @@
 # Changes
 
+## 0.2.1 (2026-11-19)
+
+- The first release archived on Zenodo, which gives the tool a permanent identifier (DOI).
+
 ## 0.2.0 (2026-11-18)
 
 - Licensed under the BSD 3-Clause license: free to use, change and share.
