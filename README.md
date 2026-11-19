@@ -86,6 +86,8 @@ What a scenario layer is not:
   to well under one percent over the few hundred kilometers a scenario covers.
 
 Every input is written into the layer (`source.scenario`), so a scenario can be reproduced exactly.
+The layer also records the fault trace and, for a dipping fault, the corners of the rupture's
+footprint at the surface, so the fault is drawn on the preview and on the ShakeReady map.
 
 ## What comes out
 
@@ -157,7 +159,7 @@ ground motions are used as given, with no adjustment for local soil.
 
 ## Status
 
-Version 0.3.2. Next for the scenario builder: more ground-motion models, and ground conditions that
+Version 0.3.3. Next for the scenario builder: more ground-motion models, and ground conditions that
 vary from place to place.
 
 ## Who made this
@@ -176,7 +178,7 @@ copies of the code, and that the maker's name is not used to endorse things buil
 
 If SR-HazardMaker helps your work, please cite it:
 
-> Taciroglu, E. (2026). *SR-HazardMaker* (Version 0.3.2) [Computer software].
+> Taciroglu, E. (2026). *SR-HazardMaker* (Version 0.3.3) [Computer software].
 > https://doi.org/10.5281/zenodo.24356049
 
 ```bibtex
@@ -184,7 +186,7 @@ If SR-HazardMaker helps your work, please cite it:
   author  = {Taciroglu, E.},
   title   = {{SR-HazardMaker}},
   year    = {2026},
-  version = {0.3.2},
+  version = {0.3.3},
   doi     = {10.5281/zenodo.24356049},
   url     = {https://github.com/TRG-UCLA/SR-HazardMaker}
 }

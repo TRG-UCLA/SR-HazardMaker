@@ -1,5 +1,13 @@
 # Changes
 
+## 0.3.3 (2026-11-19)
+
+- The fault is drawn on the map: the trace of a computed scenario, the footprint of a dipping
+  rupture, and the epicenter of a ShakeMap. On the tool's preview, and on any map that uses the
+  shared drawing code (the ShakeReady map does).
+- A scenario layer records the corners of a dipping rupture's footprint at the surface
+  (`source.scenario.surface_projection`).
+
 ## 0.3.2 (2026-11-19)
 
 Fixes from the first use of the scenario builder on the page.

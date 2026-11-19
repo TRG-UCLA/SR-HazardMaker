@@ -440,6 +440,20 @@ class TestScenario(unittest.TestCase):
         peak = max(layer["levels"][0]["measures"]["PGA"]) * grid.SCALE
         self.assertTrue(0.3 < peak < 2.0, peak)
 
+    def test_footprint_of_the_rupture_is_recorded(self):
+        vertical = scenario.build(SCENARIOS[0], META)["source"]["scenario"]
+        self.assertNotIn("surface_projection", vertical)                    # a vertical fault's footprint is its trace
+        self.assertEqual(vertical["trace"], [[34.40, -118.80], [34.10, -118.30]])
+        p = scenario.check_params({"magnitude": 7, "mechanism": "reverse", "trace": [[34.0, -118.0], [34.5, -118.0]], "dip": 45, "width_km": 20, "spacing": 0.1, "margin_km": 30})
+        fp = scenario.build(p, META)["source"]["scenario"]["surface_projection"]
+        g = scenario.geometry(p)
+        self.assertEqual(fp[0], [34.0, -118.0]); self.assertEqual(fp[1], [34.5, -118.0])                       # the two ends of the trace
+        self.assertAlmostEqual(fp[2][0], 34.5, places=5); self.assertAlmostEqual(fp[3][0], 34.0, places=5)      # carried due east, down dip
+        self.assertAlmostEqual((fp[2][1] + 118.0) * g["kx"], g["w"], delta=0.002)                               # by the width times cos(dip)
+        self.assertAlmostEqual(fp[2][1], fp[3][1], places=5)
+        for lat, lon in fp:                                                                                     # every corner lies on the rupture: distance zero
+            self.assertLess(scenario.rjb(g, lat, lon), 0.002)
+
     def test_points_as_people_write_them(self):
         for text in POINTS_OK:
             self.assertEqual(scenario.parse_point(text), [34.4, -118.8], text)

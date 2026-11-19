@@ -59,8 +59,9 @@ location, time, and whether it was recorded or a scenario).
 
 For a computed scenario SR-HazardMaker adds `scenario`: the magnitude, style of faulting, fault
 trace, length, dip and down-dip width, the Vs30, the number of standard deviations from the median
-(`epsilon`), the ground-motion model and its options, the horizontal component, and how distance
-was measured. These are all the inputs, so the layer can be recomputed from them.
+(`epsilon`), the ground-motion model and its options, the horizontal component, how distance
+was measured, and for a dipping fault `surface_projection`, the four corners of the rupture's
+footprint at the surface (the two ends of the trace, then the same two ends carried down dip). These are all the inputs, so the layer can be recomputed from them.
 
 A layer without a source title, publisher and date draws a warning from the checker, and
 SR-HazardMaker will not build one.
