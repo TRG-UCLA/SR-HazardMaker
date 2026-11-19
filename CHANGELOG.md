@@ -1,5 +1,10 @@
 # Changes
 
+## 0.3.4 (2026-11-19)
+
+- ShakeReady's map page is now called the dashboard, at `dashboard.html`. The tool's wording and its
+  links follow. The old address still works.
+
 ## 0.3.3 (2026-11-19)
 
 - The fault is drawn on the map: the trace of a computed scenario, the footprint of a dipping

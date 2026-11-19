@@ -3,7 +3,7 @@
 `"format": "shakeready-hazard-grid/1"`
 
 A hazard layer is one JSON file holding ground motions on a regular grid of latitude and longitude,
-with a description of where they came from. The ShakeReady map reads this format; SR-HazardMaker
+with a description of where they came from. The ShakeReady dashboard reads this format; SR-HazardMaker
 writes it.
 
 ## Fields

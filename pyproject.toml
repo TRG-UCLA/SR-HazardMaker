@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sr-hazardmaker"
-version = "0.3.3"
-description = "Turn ground-motion data into hazard layers for the ShakeReady map"
+version = "0.3.4"
+description = "Turn ground-motion data into hazard layers for the ShakeReady dashboard"
 readme = "README.md"
 authors = [{name = "E. Taciroglu"}]
 license = {text = "BSD-3-Clause"}

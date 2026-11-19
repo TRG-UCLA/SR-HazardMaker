@@ -5,7 +5,7 @@
 Made by **E. Taciroglu**, University of California, Los Angeles.
 
 SR-HazardMaker makes **hazard layers** for the
-[ShakeReady](https://trg-ucla.github.io/ShakeReady/) map: gridded shaking that the map can display
+[ShakeReady](https://trg-ucla.github.io/ShakeReady/) dashboard: gridded shaking that the dashboard can display
 and use to estimate damage to bridges and buildings. It reads the files that ground motions
 usually come in, or computes the shaking of an earthquake you describe, checks the result, and
 writes one small file in a documented format, with a record of where the values came from.
@@ -87,7 +87,7 @@ What a scenario layer is not:
 
 Every input is written into the layer (`source.scenario`), so a scenario can be reproduced exactly.
 The layer also records the fault trace and, for a dipping fault, the corners of the rupture's
-footprint at the surface, so the fault is drawn on the preview and on the ShakeReady map.
+footprint at the surface, so the fault is drawn on the preview and on the ShakeReady dashboard.
 
 ## What comes out
 
@@ -102,13 +102,13 @@ it came from.
 SR-HazardMaker will not build a layer without a title, a ground condition, a source title, a
 publisher or author, and a date. It fills these in itself only when the file identifies them, as a
 ShakeMap does. This is deliberate: a damage estimate is only as traceable as the ground motions
-behind it, and every table the ShakeReady map produces cites the layer it used.
+behind it, and every table the ShakeReady dashboard produces cites the layer it used.
 
-## Using a layer on the ShakeReady map
+## Using a layer on the ShakeReady dashboard
 
-- **Straight away, on your own computer.** On the map, under Hazard layer, choose "Use a layer file
+- **Straight away, on your own computer.** On the dashboard, under Hazard layer, choose "Use a layer file
   from my computer". On the ShakeReady site's own copy of SR-HazardMaker there is also a button
-  that keeps the layer in your browser and opens the map on it. Either way the layer stays on your
+  that keeps the layer in your browser and opens the dashboard on it. Either way the layer stays on your
   computer, is marked as yours and unpublished, and any damage table made from it says so.
 - **For everyone.** Send the layer file and its index entry to the ShakeReady maintainers, or open
   a pull request adding them to the
@@ -134,7 +134,7 @@ python -m unittest discover -s tests -v
 Before release 0.1.0 the ShakeMap converter was also run on seven real USGS ShakeMap files from
 three versions of the ShakeMap software (shortened samples in the OpenQuake engine's test data),
 which is how the two spellings of percent-g, `pctg` and `%g`, came to be handled. The browser page
-was tested with a 290 MB archive, and a layer made with it was used on the ShakeReady map, where
+was tested with a 290 MB archive, and a layer made with it was used on the ShakeReady dashboard, where
 the damage table matched an independent calculation for all 25,974 California bridges.
 
 The ground-motion model was written from the published equations and checked against all 600
@@ -159,7 +159,7 @@ ground motions are used as given, with no adjustment for local soil.
 
 ## Status
 
-Version 0.3.3. Next for the scenario builder: more ground-motion models, and ground conditions that
+Version 0.3.4. Next for the scenario builder: more ground-motion models, and ground conditions that
 vary from place to place.
 
 ## Who made this
@@ -178,7 +178,7 @@ copies of the code, and that the maker's name is not used to endorse things buil
 
 If SR-HazardMaker helps your work, please cite it:
 
-> Taciroglu, E. (2026). *SR-HazardMaker* (Version 0.3.3) [Computer software].
+> Taciroglu, E. (2026). *SR-HazardMaker* (Version 0.3.4) [Computer software].
 > https://doi.org/10.5281/zenodo.24356049
 
 ```bibtex
@@ -186,7 +186,7 @@ If SR-HazardMaker helps your work, please cite it:
   author  = {Taciroglu, E.},
   title   = {{SR-HazardMaker}},
   year    = {2026},
-  version = {0.3.3},
+  version = {0.3.4},
   doi     = {10.5281/zenodo.24356049},
   url     = {https://github.com/TRG-UCLA/SR-HazardMaker}
 }
