@@ -2,11 +2,11 @@
 
 Made by **E. Taciroglu**, University of California, Los Angeles.
 
-SR-HazardMaker turns ground-motion data into **hazard layers** for the
+SR-HazardMaker makes **hazard layers** for the
 [ShakeReady](https://trg-ucla.github.io/ShakeReady/) map: gridded shaking that the map can display
 and use to estimate damage to bridges and buildings. It reads the files that ground motions
-usually come in, checks them, and writes one small file in a documented format, with a record of
-where the values came from.
+usually come in, or computes the shaking of an earthquake you describe, checks the result, and
+writes one small file in a documented format, with a record of where the values came from.
 
 It is part of ShakeReady, a collaboration of universities and research centers that publishes
 tools and data for quantifying and improving seismic resilience.
@@ -27,6 +27,8 @@ sr-hazardmaker shakemap grid.xml
 sr-hazardmaker table simulation.csv --sa10 "SA(1.0)" --units cm/s2 \
     --title "My scenario" --site "As computed, site-specific" \
     --source-title "Simulation of the ... earthquake" --publisher "A. Researcher"
+sr-hazardmaker scenario --magnitude 7 --mechanism strike-slip \
+    --from 34.40,-118.80 --to 34.10,-118.30 --publisher "A. Researcher"
 sr-hazardmaker check my-layer.json
 sr-hazardmaker cite
 ```
@@ -55,6 +57,31 @@ value = grid.value_at(layer, layer["levels"][0]["measures"]["SA1P0"], 34.05, -11
 | **USGS National Seismic Hazard Model** | The archive for one site condition, or the `map.csv` tables for SA1P0, SA0P3 and PGA from inside it. The current release is [doi:10.5066/P14VGAV4](https://doi.org/10.5066/P14VGAV4). The archive is large (about 2 GB); only the three tables needed are read from it. The result is cropped to California and its surroundings. |
 | **USGS ShakeMap** | The `grid.xml` of a recorded or scenario earthquake, zipped or not. Field names and units are read from the file, since both have changed between versions of the ShakeMap software. |
 | **A table of points** | A CSV with longitude, latitude and spectral acceleration at 1.0 second, and optionally at 0.3 second and peak ground acceleration, in g, %g, cm/s² or m/s². The points must form an evenly spaced grid. Scattered points are not supported yet. |
+
+## Describing an earthquake: the scenario builder
+
+With no file at all, SR-HazardMaker can compute the shaking of an earthquake you describe:
+
+- **the earthquake:** its magnitude and style of faulting (strike-slip, reverse, normal, or unspecified);
+- **the rupture:** a straight fault trace between two points, a dip, and for a dipping fault a
+  down-dip width. A dipping fault dips to the right of the direction from the first point to the second;
+- **the ground:** one Vs30 used everywhere (760 m/s, the reference rock condition, unless you say otherwise);
+- **the level:** the median, or the median shifted by a number of standard deviations.
+
+The shaking is computed with the ground-motion model of Boore, Stewart, Seyhan and Atkinson (2014),
+*Earthquake Spectra* 30(3), 1057-1085: its base model, with no regional adjustment and no
+basin-depth term, for the RotD50 horizontal component. It applies to magnitudes 3 to 8.5 (to 7 for
+normal faulting) and Vs30 from 150 to 1500 m/s, and the tool refuses inputs outside that.
+
+What a scenario layer is not:
+
+- It does not account for local soil: one Vs30 is used everywhere.
+- It is not a recording, and with a level other than the median it is not a simulated realization
+  of the event either: every point is shifted by the same number of standard deviations.
+- The rupture is a flat rectangle. Distances are measured in a flat local frame, which is accurate
+  to well under one percent over the few hundred kilometers a scenario covers.
+
+Every input is written into the layer (`source.scenario`), so a scenario can be reproduced exactly.
 
 ## What comes out
 
@@ -104,6 +131,13 @@ which is how the two spellings of percent-g, `pctg` and `%g`, came to be handled
 was tested with a 290 MB archive, and a layer made with it was used on the ShakeReady map, where
 the damage table matched an independent calculation for all 25,974 California bridges.
 
+The ground-motion model was written from the published equations and checked against all 600
+cases of the verification tables distributed with the OpenQuake engine for this model: 1,800
+medians agree to within 5 parts per million and 1,800 standard deviations to within 0.00005, the
+precision of the tables. A subset of 69 cases is checked on every change. The scenario builder's
+fault geometry is tested against hand-computed distances, and the page and the command line must
+produce the same scenario layer, value for value.
+
 One thing has not been tested: the real USGS hazard-model archive, which the tool was built for
 from a description of its layout. If its folder or column names differ, SR-HazardMaker reports
 what it found instead of guessing.
@@ -119,8 +153,8 @@ ground motions are used as given, with no adjustment for local soil.
 
 ## Status
 
-Version 0.2.1. Next: a scenario builder that computes the shaking of a described earthquake with a
-ground-motion model.
+Version 0.3.0. Next for the scenario builder: more ground-motion models, choosing the fault on a
+map, and ground conditions that vary from place to place.
 
 ## Who made this
 
@@ -138,7 +172,7 @@ copies of the code, and that the maker's name is not used to endorse things buil
 
 If SR-HazardMaker helps your work, please cite it:
 
-> Taciroglu, E. (2026). *SR-HazardMaker* (Version 0.2.1) [Computer software].
+> Taciroglu, E. (2026). *SR-HazardMaker* (Version 0.3.0) [Computer software].
 > https://github.com/TRG-UCLA/SR-HazardMaker
 
 ```bibtex
@@ -146,7 +180,7 @@ If SR-HazardMaker helps your work, please cite it:
   author  = {Taciroglu, E.},
   title   = {{SR-HazardMaker}},
   year    = {2026},
-  version = {0.2.1},
+  version = {0.3.0},
   url     = {https://github.com/TRG-UCLA/SR-HazardMaker}
 }
 ```

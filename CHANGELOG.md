@@ -1,5 +1,14 @@
 # Changes
 
+## 0.3.0 (2026-11-19)
+
+- **Scenario builder.** Describe an earthquake (magnitude, style of faulting, a fault trace, dip and
+  width, one Vs30) and SR-HazardMaker computes the shaking with the ground-motion model of Boore,
+  Stewart, Seyhan and Atkinson (2014), as the median or shifted by a number of standard deviations.
+  On the page ("An earthquake to describe") and on the command line (`sr-hazardmaker scenario`).
+- The model was checked against all 600 cases of the OpenQuake engine's verification tables for it;
+  69 of them are checked on every change. The page and the command line give the same scenario.
+
 ## 0.2.1 (2026-11-19)
 
 - The first release archived on Zenodo, which gives the tool a permanent identifier (DOI).

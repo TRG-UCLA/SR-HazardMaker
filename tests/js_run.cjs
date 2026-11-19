@@ -3,6 +3,7 @@
 const fs = require("fs"), path = require("path");
 const H = require("../docs/sr-hazard.js"); globalThis.SRHazard = H;
 const C = require("../docs/converters.js");
+const S = require("../docs/scenario.js");
 const [command, out, argsPath] = process.argv.slice(2);
 const A = JSON.parse(fs.readFileSync(argsPath, "utf8"));
 const asFile = p => new File([fs.readFileSync(p)], path.basename(p));
@@ -25,6 +26,10 @@ const asFile = p => new File([fs.readFileSync(p)], path.basename(p));
   } else if (command === "valueat"){
     const h = JSON.parse(fs.readFileSync(A.layer, "utf8")), values = h.levels[0].measures.SA1P0;
     result = A.points.map(([lat, lon]) => H.valueAt(h, values, lat, lon));
+  } else if (command === "model"){
+    result = A.cases.map(([m, k, r, v]) => ["PGA", "SA0P3", "SA1P0"].map(x => [S.lnMedian(x, m, k, r, v), S.sigma(x, m, r, v)]));
+  } else if (command === "scenario"){
+    result = {layers: A.cases.map(c => S.build(c, A.meta)), defaults: A.cases.map(c => S.defaults(c))};
   } else if (command === "cite"){
     result = {citation: H.citation(), version: H.VERSION};
   } else if (command === "slug"){

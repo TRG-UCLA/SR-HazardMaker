@@ -11,7 +11,7 @@ import csv, io, json, math, os, random, shutil, subprocess, sys, tempfile, unitt
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "src"))
 import sr_hazardmaker                                              # noqa: E402
-from sr_hazardmaker import cli, grid, nshm, shakemap, table   # noqa: E402
+from sr_hazardmaker import bssa14, cli, grid, nshm, scenario, shakemap, table   # noqa: E402
 
 NODE = shutil.which("node")
 META = {"id": "test-layer", "title": "Test layer", "site_condition": "Test condition", "description": "Made up.",
@@ -295,6 +295,156 @@ class TestFormat(Base):
         self.assertTrue(any("Check the units" in w for w in grid.check(units)[1]))
 
 
+# Reference values for the ground-motion model: magnitude, mechanism, Rjb (km), Vs30 (m/s), then the median PGA, Sa(0.3 s)
+# and Sa(1.0 s) in g, then their total standard deviations. From the verification tables distributed with the OpenQuake
+# engine for Boore et al. (2014) (openquake/hazardlib/tests/gsim/data/BSSA2014). The model was checked against all 600
+# rows of those tables before release; this is a subset kept here so the check runs on every change.
+REFERENCE = [
+    [5.0, "normal", 50.0, 600.0, 0.00839719, 0.0120419, 0.00212687, 0.7022, 0.6852, 0.7109],
+    [5.0, "normal", 0.0, 600.0, 0.146535, 0.164149, 0.0265675, 0.7022, 0.6852, 0.7109],
+    [5.0, "normal", 0.0, 250.0, 0.193782, 0.243305, 0.0540372, 0.6651, 0.6568, 0.7004],
+    [5.0, "normal", 50.0, 250.0, 0.0139057, 0.0244365, 0.00523895, 0.6651, 0.6568, 0.7004],
+    [7.0, "normal", 50.0, 600.0, 0.0589322, 0.120621, 0.0434342, 0.6051, 0.6059, 0.6924],
+    [7.0, "normal", 50.0, 250.0, 0.0880977, 0.212172, 0.0980611, 0.5694, 0.5767, 0.681],
+    [7.0, "normal", 0.0, 600.0, 0.405173, 0.874069, 0.346414, 0.6051, 0.6059, 0.6924],
+    [7.0, "normal", 0.0, 250.0, 0.435297, 0.96927, 0.590376, 0.5694, 0.5767, 0.681],
+    [4.0, "strike-slip", 20.0, 200.0, 0.00967555, 0.014555, 0.00200089, 0.741, 0.7228, 0.7294],
+    [4.0, "strike-slip", 100.0, 400.0, 0.000486204, 0.000859717, 0.000126392, 0.8009, 0.7664, 0.7442],
+    [4.0, "strike-slip", 100.0, 760.0, 0.000330915, 0.000501143, 6.44366e-05, 0.8009, 0.7664, 0.7442],
+    [4.0, "strike-slip", 20.0, 400.0, 0.00648024, 0.00828976, 0.000980325, 0.8009, 0.7664, 0.7442],
+    [4.0, "strike-slip", 0.0, 200.0, 0.0638345, 0.071943, 0.00919164, 0.741, 0.7228, 0.7294],
+    [4.0, "strike-slip", 0.0, 760.0, 0.0325393, 0.0278926, 0.00253427, 0.8009, 0.7664, 0.7442],
+    [4.0, "strike-slip", 20.0, 760.0, 0.00442895, 0.00486184, 0.000501215, 0.8009, 0.7664, 0.7442],
+    [4.0, "strike-slip", 100.0, 200.0, 0.000736103, 0.00153829, 0.000261413, 0.741, 0.7228, 0.7294],
+    [4.0, "strike-slip", 0.0, 400.0, 0.0464417, 0.04586, 0.00487304, 0.8009, 0.7664, 0.7442],
+    [5.0, "strike-slip", 20.0, 760.0, 0.0298779, 0.0360803, 0.00584835, 0.7022, 0.6852, 0.7109],
+    [5.0, "strike-slip", 100.0, 760.0, 0.00302542, 0.00459583, 0.000883251, 0.7022, 0.6852, 0.7109],
+    [5.0, "strike-slip", 20.0, 400.0, 0.0427334, 0.0595058, 0.0112619, 0.7022, 0.6852, 0.7109],
+    [5.0, "strike-slip", 0.0, 760.0, 0.16414, 0.17093, 0.0259146, 0.7022, 0.6852, 0.7109],
+    [5.0, "strike-slip", 100.0, 400.0, 0.00443291, 0.00785239, 0.00172922, 0.7022, 0.6852, 0.7109],
+    [5.0, "strike-slip", 0.0, 400.0, 0.21802, 0.252969, 0.0474338, 0.7022, 0.6852, 0.7109],
+    [5.0, "strike-slip", 0.0, 200.0, 0.235873, 0.286494, 0.0712145, 0.644, 0.6405, 0.6944],
+    [5.0, "strike-slip", 100.0, 200.0, 0.00664987, 0.0138755, 0.00354526, 0.644, 0.6405, 0.6944],
+    [5.0, "strike-slip", 20.0, 200.0, 0.0591524, 0.094249, 0.0213855, 0.644, 0.6405, 0.6944],
+    [6.0, "strike-slip", 100.0, 400.0, 0.0197203, 0.0479486, 0.0161022, 0.6051, 0.6059, 0.6924],
+    [6.0, "strike-slip", 0.0, 760.0, 0.407003, 0.707934, 0.181281, 0.6051, 0.6059, 0.6924],
+    [6.0, "strike-slip", 0.0, 400.0, 0.505082, 0.948491, 0.316706, 0.6051, 0.6059, 0.6924],
+    [6.0, "strike-slip", 100.0, 200.0, 0.0285964, 0.0809054, 0.0319628, 0.5493, 0.56, 0.6744],
+    [6.0, "strike-slip", 20.0, 760.0, 0.0990773, 0.18096, 0.046683, 0.6051, 0.6059, 0.6924],
+    [6.0, "strike-slip", 100.0, 760.0, 0.0135966, 0.0284846, 0.00828232, 0.6051, 0.6059, 0.6924],
+    [6.0, "strike-slip", 0.0, 200.0, 0.435753, 0.789377, 0.383199, 0.5493, 0.56, 0.6744],
+    [6.0, "strike-slip", 20.0, 400.0, 0.135537, 0.279621, 0.0871926, 0.6051, 0.6059, 0.6924],
+    [6.0, "strike-slip", 20.0, 200.0, 0.16176, 0.361948, 0.143749, 0.5493, 0.56, 0.6744],
+    [7.0, "strike-slip", 0.0, 200.0, 0.4708, 0.973361, 0.691284, 0.5493, 0.56, 0.6744],
+    [7.0, "strike-slip", 20.0, 200.0, 0.220664, 0.499095, 0.281115, 0.5493, 0.56, 0.6744],
+    [7.0, "strike-slip", 0.0, 760.0, 0.459874, 0.928775, 0.340345, 0.6051, 0.6059, 0.6924],
+    [7.0, "strike-slip", 20.0, 760.0, 0.149712, 0.2875, 0.10001, 0.6051, 0.6059, 0.6924],
+    [7.0, "strike-slip", 0.0, 400.0, 0.564823, 1.22568, 0.590399, 0.6051, 0.6059, 0.6924],
+    [7.0, "strike-slip", 100.0, 760.0, 0.0278443, 0.0559242, 0.0208439, 0.6051, 0.6059, 0.6924],
+    [7.0, "strike-slip", 100.0, 200.0, 0.0555204, 0.147534, 0.0767049, 0.5493, 0.56, 0.6744],
+    [7.0, "strike-slip", 100.0, 400.0, 0.0398904, 0.0924561, 0.0401833, 0.6051, 0.6059, 0.6924],
+    [7.0, "strike-slip", 20.0, 400.0, 0.200024, 0.429149, 0.183794, 0.6051, 0.6059, 0.6924],
+    [8.0, "strike-slip", 20.0, 400.0, 0.293945, 0.562946, 0.294336, 0.6051, 0.6059, 0.6924],
+    [8.0, "strike-slip", 0.0, 200.0, 0.508164, 1.03082, 0.949355, 0.5493, 0.56, 0.6744],
+    [8.0, "strike-slip", 0.0, 400.0, 0.631486, 1.36173, 0.838473, 0.6051, 0.6059, 0.6924],
+    [8.0, "strike-slip", 100.0, 200.0, 0.103624, 0.219073, 0.135409, 0.5493, 0.56, 0.6744],
+    [8.0, "strike-slip", 20.0, 760.0, 0.226225, 0.392833, 0.16325, 0.6051, 0.6059, 0.6924],
+    [8.0, "strike-slip", 100.0, 400.0, 0.0799588, 0.151292, 0.0759304, 0.6051, 0.6059, 0.6924],
+    [8.0, "strike-slip", 0.0, 760.0, 0.519613, 1.04795, 0.486866, 0.6051, 0.6059, 0.6924],
+    [8.0, "strike-slip", 20.0, 200.0, 0.295543, 0.577028, 0.412081, 0.5493, 0.56, 0.6744],
+    [8.0, "strike-slip", 100.0, 760.0, 0.0570218, 0.0944287, 0.0399696, 0.6051, 0.6059, 0.6924],
+    [5.0, "reverse", 50.0, 600.0, 0.0103357, 0.0153121, 0.00261141, 0.7022, 0.6852, 0.7109],
+    [5.0, "reverse", 0.0, 600.0, 0.18, 0.208084, 0.0325842, 0.7022, 0.6852, 0.7109],
+    [5.0, "reverse", 0.0, 250.0, 0.229549, 0.293174, 0.0642576, 0.6651, 0.6568, 0.7004],
+    [5.0, "reverse", 50.0, 250.0, 0.0170369, 0.0308726, 0.00640721, 0.6651, 0.6568, 0.7004],
+    [7.0, "reverse", 50.0, 600.0, 0.0724549, 0.153111, 0.0532963, 0.6051, 0.6059, 0.6924],
+    [7.0, "reverse", 50.0, 250.0, 0.105909, 0.261013, 0.11805, 0.5694, 0.5767, 0.681],
+    [7.0, "reverse", 0.0, 600.0, 0.497295, 1.10661, 0.424675, 0.6051, 0.6059, 0.6924],
+    [7.0, "reverse", 0.0, 250.0, 0.50854, 1.1454, 0.693973, 0.5694, 0.5767, 0.681],
+    [6.0, "unspecified", 20.0, 250.0, 0.150448, 0.336672, 0.122286, 0.5694, 0.5767, 0.681],
+    [6.0, "unspecified", 20.0, 760.0, 0.0953544, 0.177661, 0.0453668, 0.6051, 0.6059, 0.6924],
+    [6.0, "unspecified", 75.0, 250.0, 0.0375189, 0.0972688, 0.034193, 0.5694, 0.5767, 0.681],
+    [6.0, "unspecified", 75.0, 760.0, 0.0204155, 0.041428, 0.0111715, 0.6051, 0.6059, 0.6924],
+    [8.0, "unspecified", 75.0, 760.0, 0.0767005, 0.127187, 0.0508387, 0.6051, 0.6059, 0.6924],
+    [8.0, "unspecified", 75.0, 250.0, 0.124906, 0.251978, 0.140695, 0.5694, 0.5767, 0.681],
+    [8.0, "unspecified", 20.0, 760.0, 0.217725, 0.385671, 0.158647, 0.6051, 0.6059, 0.6924],
+    [8.0, "unspecified", 20.0, 250.0, 0.294691, 0.589235, 0.376351, 0.5694, 0.5767, 0.681]
+]
+SCENARIOS = [
+    {"magnitude": 7.0, "mechanism": "strike-slip", "trace": [[34.40, -118.80], [34.10, -118.30]], "spacing": 0.05},
+    {"magnitude": 6.7, "mechanism": "reverse", "trace": [[34.30, -118.65], [34.33, -118.45]], "dip": 40, "width_km": 20, "vs30": 360, "epsilon": 1, "spacing": 0.05, "margin_km": 60},
+    {"magnitude": 6.5, "mechanism": "normal", "trace": [[36.5, -117.9], [36.9, -118.0]], "dip": 60, "width_km": 15, "vs30": 270, "epsilon": -0.5, "spacing": 0.04, "margin_km": 80},
+]
+
+
+class TestGroundMotionModel(unittest.TestCase):
+    def test_against_reference_values(self):
+        self.assertGreater(len(REFERENCE), 50)
+        for M, mech, R, V, *vals in REFERENCE:
+            for m, median, sd in zip(("PGA", "SA0P3", "SA1P0"), vals[:3], vals[3:]):
+                self.assertAlmostEqual(bssa14.ground_motion(m, M, mech, R, V) / median, 1.0, delta=2e-5, msg=f"{m} M{M} {mech} R{R} V{V}")
+                self.assertAlmostEqual(bssa14.sigma(m, M, R, V), sd, delta=1e-4, msg=f"sigma {m} M{M} R{R} V{V}")
+
+    def test_behaves_as_a_ground_motion_model_should(self):
+        gm = lambda **k: bssa14.ground_motion("SA1P0", k.get("M", 7.0), "strike-slip", k.get("R", 20.0), k.get("V", 400.0), k.get("eps", 0.0))
+        self.assertGreater(gm(M=7.5), gm(M=6.5))                        # larger earthquakes shake harder
+        self.assertGreater(gm(R=5), gm(R=50))                           # shaking falls off with distance
+        self.assertGreater(gm(V=250), gm(V=760))                        # soft ground amplifies long periods
+        self.assertAlmostEqual(gm(eps=1) / gm(), math.exp(bssa14.sigma("SA1P0", 7.0, 20.0, 400.0)))
+        self.assertAlmostEqual(bssa14.ln_median("PGA", 6.0, "reverse", 10.0, 760.0),      # on reference rock the site term vanishes
+                               bssa14._event(bssa14.COEFFS["PGA"], 6.0, "reverse") + bssa14._path(bssa14.COEFFS["PGA"], 6.0, 10.0))
+
+    def test_inputs_outside_the_model_are_refused(self):
+        for bad in ((9.0, "strike-slip", 760), (7.5, "normal", 760), (2.5, "reverse", 760), (7.0, "strike-slip", 100), (7.0, "strike-slip", 2000), (7.0, "oblique", 760)):
+            with self.assertRaises(ValueError):
+                bssa14.check_inputs(*bad)
+        bssa14.check_inputs(8.5, "strike-slip", 150)
+
+
+class TestScenario(unittest.TestCase):
+    def test_distance_to_a_vertical_fault(self):
+        g = scenario.geometry(scenario.check_params({"magnitude": 7, "mechanism": "strike-slip", "trace": [[34.0, -118.0], [34.5, -118.0]]}))
+        self.assertAlmostEqual(g["length"], 55.6, delta=0.05)
+        self.assertEqual(scenario.rjb(g, 34.2, -118.0), 0.0)
+        self.assertAlmostEqual(scenario.rjb(g, 34.25, -118.0 + 10 / g["kx"]), 10.0, places=9)
+        self.assertAlmostEqual(scenario.rjb(g, 34.25, -118.0 - 10 / g["kx"]), 10.0, places=9)
+        self.assertAlmostEqual(scenario.rjb(g, 34.5 + 10 / g["ky"], -118.0), 10.0, places=9)
+        self.assertAlmostEqual(scenario.rjb(g, 34.5 + 3 / g["ky"], -118.0 + 4 / g["kx"]), 5.0, places=9)
+
+    def test_distance_to_a_dipping_fault(self):
+        g = scenario.geometry(scenario.check_params({"magnitude": 7, "mechanism": "reverse", "trace": [[34.0, -118.0], [34.5, -118.0]], "dip": 45, "width_km": 20}))
+        self.assertAlmostEqual(g["w"], 20 * math.cos(math.radians(45)))
+        self.assertEqual(scenario.rjb(g, 34.25, -118.0 + 5 / g["kx"]), 0.0)                          # above the rupture
+        self.assertAlmostEqual(scenario.rjb(g, 34.25, -118.0 - 5 / g["kx"]), 5.0, places=9)          # on the other side
+        self.assertAlmostEqual(scenario.rjb(g, 34.25, -118.0 + 20 / g["kx"]), 20 - g["w"], places=9)
+        flipped = scenario.geometry(scenario.check_params({"magnitude": 7, "mechanism": "reverse", "trace": [[34.5, -118.0], [34.0, -118.0]], "dip": 45, "width_km": 20}))
+        self.assertEqual(scenario.rjb(flipped, 34.25, -118.0 - 5 / flipped["kx"]), 0.0)              # swapping the ends flips the dip direction
+
+    def test_layer_holds_the_model_values_at_its_nodes(self):
+        p = scenario.check_params(SCENARIOS[1])
+        layer = scenario.build(p, META)
+        self.assertEqual(grid.check(layer), ([], []))
+        self.assertEqual((layer["kind"], layer["levels"][0]["label"]), ("scenario", "Median plus 1 standard deviation"))
+        g, gr = scenario.geometry(p), layer["grid"]
+        self.assertAlmostEqual(gr["lat_min"] / gr["dlat"], round(gr["lat_min"] / gr["dlat"]), places=6)      # snapped to the spacing
+        for j, i in ((0, 0), (5, 9), (gr["nlat"] - 1, gr["nlon"] - 1), (gr["nlat"] // 2, gr["nlon"] // 2)):
+            r = scenario.rjb(g, gr["lat_min"] + j * gr["dlat"], gr["lon_min"] + i * gr["dlon"])
+            for m in ("SA1P0", "SA0P3", "PGA"):
+                self.assertAlmostEqual(layer["levels"][0]["measures"][m][j * gr["nlon"] + i] * grid.SCALE, bssa14.ground_motion(m, 6.7, "reverse", r, 360.0, 1.0), delta=0.00051)
+        s = layer["source"]["scenario"]
+        self.assertEqual((s["magnitude"], s["mechanism"], s["vs30_m_per_s"], s["epsilon"], s["component"]), (6.7, "reverse", 360.0, 1.0, "RotD50"))
+        self.assertIn("Boore", s["model"])
+        peak = max(layer["levels"][0]["measures"]["PGA"]) * grid.SCALE
+        self.assertTrue(0.3 < peak < 2.0, peak)
+
+    def test_bad_descriptions_are_refused(self):
+        ok = SCENARIOS[0]
+        for change in ({"magnitude": 9.2}, {"trace": [[34.0, -118.0], [34.0, -118.0]]}, {"dip": 0}, {"dip": 120}, {"vs30": 90}, {"epsilon": 5}, {"spacing": 0.0001},
+                       {"margin_km": 900}, {"mechanism": "sideways"}, {"trace": [[134.0, -118.0], [34.0, -118.0]]}, {"spacing": 0.005, "margin_km": 250}):
+            with self.assertRaises(ValueError, msg=str(change)):
+                scenario.build(dict(ok, **change), META)
+
+
 class TestRelease(unittest.TestCase):
     """The version and the citation must agree everywhere they are written down."""
     def test_version_citation_and_license_agree(self):
@@ -321,6 +471,19 @@ class TestCommandLine(Base):
         self.assertEqual(code, 2)
         self.assertIn("must say where it comes from", err)
         self.assertFalse(os.path.exists(os.path.join(self.tmp, "o1")))
+
+    def test_scenario_from_the_command_line(self):
+        out = os.path.join(self.tmp, "o3")
+        args = ["scenario", "--magnitude", "7", "--mechanism", "strike-slip", "--from", "34.40,-118.80", "--to", "34.10,-118.30", "--spacing", "0.05", "--out", out]
+        code, _, err = self.run_cli(*args)
+        self.assertEqual(code, 2)                                   # no maker named
+        self.assertIn("publisher", err)
+        code, text, _ = self.run_cli(*args, "--publisher", "A. Researcher", "--id", "my-scenario")
+        self.assertEqual(code, 0, text)
+        layer = grid.load(os.path.join(out, "my-scenario.json"))
+        self.assertEqual((layer["title"], layer["source"]["publisher"]), ("M 7 strike-slip scenario earthquake", "A. Researcher"))
+        self.assertIn("command line (scenario builder)", layer["provenance"]["generator"])
+        self.assertEqual(self.run_cli("scenario", "--magnitude", "9.5", "--mechanism", "reverse", "--from", "34,-118", "--to", "35,-118", "--publisher", "x")[0], 2)
 
     def test_writes_layer_and_index_entry(self):
         out = os.path.join(self.tmp, "o2")
@@ -412,6 +575,26 @@ class TestBrowserConvertersAgree(Base):
         self.assertEqual(r["version"], sr_hazardmaker.__version__)
         self.assertIn("Taciroglu, E.", r["citation"]["text"])
         self.assertIn(sr_hazardmaker.__version__, r["citation"]["bibtex"])
+
+    def test_ground_motion_model(self):
+        cases = [r[:4] for r in REFERENCE] + [[7.3, "strike-slip", 3.7, 333.0], [5.1, "normal", 150.0, 1200.0], [4.6, "unspecified", 280.0, 226.0]]
+        r = self.js("model", {"cases": cases})
+        py = [[[bssa14.ln_median(m, *c), bssa14.sigma(m, c[0], c[2], c[3])] for m in ("PGA", "SA0P3", "SA1P0")] for c in cases]
+        # The two languages use different math libraries, so the raw values can differ in the last digit or two.
+        # Thirteen significant digits is far finer than the 0.001 g a layer stores; the layers themselves must be identical.
+        for case, a, b in zip(cases, r, py):
+            for (ja, js_), (pa, ps) in zip(a, b):
+                self.assertAlmostEqual(ja, pa, delta=1e-13 * max(1.0, abs(pa)), msg=str(case))
+                self.assertAlmostEqual(js_, ps, delta=1e-13, msg=str(case))
+
+    def test_scenario_builder(self):
+        r = self.js("scenario", {"cases": SCENARIOS, "meta": META})
+        self.assertNotIn("error", r, r)
+        for p, layer, d in zip(SCENARIOS, r["layers"], r["defaults"]):
+            self.same(scenario.build(p, META), layer)
+            self.assertEqual(scenario.defaults(p), d)
+        for bad in ({"magnitude": 9.2}, {"vs30": 90}, {"trace": [[34.0, -118.0], [34.0, -118.0]]}):
+            self.assertIn("error", self.js("scenario", {"cases": [dict(SCENARIOS[0], **bad)], "meta": META}))
 
     def test_identifier_from_title(self):
         strings = ["USGS National Seismic Hazard Model 2023, revision 2, Vs30 760 m/s", "M 7.1 Ridgecrest — 2019", "  Çalışma: İstanbul senaryosu  ", "a" * 80, "---"]
