@@ -370,6 +370,9 @@ REFERENCE = [
     [8.0, "unspecified", 20.0, 760.0, 0.217725, 0.385671, 0.158647, 0.6051, 0.6059, 0.6924],
     [8.0, "unspecified", 20.0, 250.0, 0.294691, 0.589235, 0.376351, 0.5694, 0.5767, 0.681]
 ]
+POINTS_OK = ["34.40, -118.80", "34.4,-118.8", "34.4 -118.8", " 34.40 ;  -118.80 ", "34.40\u00b0, \u2212118.80\u00b0", "34.40 N, 118.80 W", "34.4N 118.8W", "118.80 W, 34.40 N",
+             "-118.8 E, 34.4 N", "34.40n 118.80w", "+34.4, -118.8"]
+POINTS_BAD = ["", "34.40", "north of Los Angeles", "34.40, -118.80, 12", "34.40, abc"]
 SCENARIOS = [
     {"magnitude": 7.0, "mechanism": "strike-slip", "trace": [[34.40, -118.80], [34.10, -118.30]], "spacing": 0.05},
     {"magnitude": 6.7, "mechanism": "reverse", "trace": [[34.30, -118.65], [34.33, -118.45]], "dip": 40, "width_km": 20, "vs30": 360, "epsilon": 1, "spacing": 0.05, "margin_km": 60},
@@ -436,6 +439,15 @@ class TestScenario(unittest.TestCase):
         self.assertIn("Boore", s["model"])
         peak = max(layer["levels"][0]["measures"]["PGA"]) * grid.SCALE
         self.assertTrue(0.3 < peak < 2.0, peak)
+
+    def test_points_as_people_write_them(self):
+        for text in POINTS_OK:
+            self.assertEqual(scenario.parse_point(text), [34.4, -118.8], text)
+        self.assertEqual(scenario.parse_point("34.4, 118.8"), [34.4, 118.8])          # the sign is never changed silently
+        self.assertEqual(scenario.parse_point("33.5 S, 70.6 W"), [-33.5, -70.6])
+        for text in POINTS_BAD:
+            with self.assertRaises(ValueError, msg=text):
+                scenario.parse_point(text)
 
     def test_bad_descriptions_are_refused(self):
         ok = SCENARIOS[0]
@@ -601,6 +613,16 @@ class TestBrowserConvertersAgree(Base):
             self.assertEqual(scenario.defaults(p), d)
         for bad in ({"magnitude": 9.2}, {"vs30": 90}, {"trace": [[34.0, -118.0], [34.0, -118.0]]}):
             self.assertIn("error", self.js("scenario", {"cases": [dict(SCENARIOS[0], **bad)], "meta": META}))
+
+    def test_points_as_people_write_them(self):
+        texts = POINTS_OK + ["34.4, 118.8", "33.5 S, 70.6 W"] + POINTS_BAD
+        expected = []
+        for text in texts:
+            try:
+                expected.append(scenario.parse_point(text))
+            except ValueError:
+                expected.append(None)
+        self.assertEqual(self.js("points", {"texts": texts}), expected)
 
     def test_identifier_from_title(self):
         strings = ["USGS National Seismic Hazard Model 2023, revision 2, Vs30 760 m/s", "M 7.1 Ridgecrest — 2019", "  Çalışma: İstanbul senaryosu  ", "a" * 80, "---"]

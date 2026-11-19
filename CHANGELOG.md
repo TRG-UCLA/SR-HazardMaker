@@ -1,5 +1,18 @@
 # Changes
 
+## 0.3.2 (2026-11-19)
+
+Fixes from the first use of the scenario builder on the page.
+
+- The fault can be chosen by clicking its two ends on a map.
+- Each end is one box that accepts a latitude and longitude as people write them
+  (`34.40, -118.80`, `34.40 N, 118.80 W`, degree signs, a typographic minus). The command line
+  accepts the same forms.
+- A "Fill in an example" link, and no sample numbers shown as hints: they looked like filled-in values.
+- Clearer messages for what is missing or unreadable, and a note when a longitude is east of Greenwich.
+- Fixed: elements meant to be hidden were shown anyway. The file box appeared in the earthquake form,
+  and on the standalone page a button appeared that cannot work there.
+
 ## 0.3.1 (2026-11-19)
 
 - SR-HazardMaker has a DOI: [10.5281/zenodo.24356049](https://doi.org/10.5281/zenodo.24356049), for all versions. It is in

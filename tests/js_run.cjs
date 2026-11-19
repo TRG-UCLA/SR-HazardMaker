@@ -30,6 +30,8 @@ const asFile = p => new File([fs.readFileSync(p)], path.basename(p));
     result = A.cases.map(([m, k, r, v]) => ["PGA", "SA0P3", "SA1P0"].map(x => [S.lnMedian(x, m, k, r, v), S.sigma(x, m, r, v)]));
   } else if (command === "scenario"){
     result = {layers: A.cases.map(c => S.build(c, A.meta)), defaults: A.cases.map(c => S.defaults(c))};
+  } else if (command === "points"){
+    result = A.texts.map(t => { try { return S.parsePoint(t); } catch (e){ return null; } });
   } else if (command === "cite"){
     result = {citation: H.citation(), version: H.VERSION};
   } else if (command === "slug"){

@@ -66,7 +66,9 @@ With no file at all, SR-HazardMaker can compute the shaking of an earthquake you
 
 - **the earthquake:** its magnitude and style of faulting (strike-slip, reverse, normal, or unspecified);
 - **the rupture:** a straight fault trace between two points, a dip, and for a dipping fault a
-  down-dip width. A dipping fault dips to the right of the direction from the first point to the second;
+  down-dip width. A dipping fault dips to the right of the direction from the first point to the second.
+  On the page, click the two ends on a map or type them. A point can be written the way people
+  write one: `34.40, -118.80`, `34.40 N, 118.80 W`, with or without degree signs;
 - **the ground:** one Vs30 used everywhere (760 m/s, the reference rock condition, unless you say otherwise);
 - **the level:** the median, or the median shifted by a number of standard deviations.
 
@@ -155,8 +157,8 @@ ground motions are used as given, with no adjustment for local soil.
 
 ## Status
 
-Version 0.3.1. Next for the scenario builder: more ground-motion models, choosing the fault on a
-map, and ground conditions that vary from place to place.
+Version 0.3.2. Next for the scenario builder: more ground-motion models, and ground conditions that
+vary from place to place.
 
 ## Who made this
 
@@ -174,7 +176,7 @@ copies of the code, and that the maker's name is not used to endorse things buil
 
 If SR-HazardMaker helps your work, please cite it:
 
-> Taciroglu, E. (2026). *SR-HazardMaker* (Version 0.3.1) [Computer software].
+> Taciroglu, E. (2026). *SR-HazardMaker* (Version 0.3.2) [Computer software].
 > https://doi.org/10.5281/zenodo.24356049
 
 ```bibtex
@@ -182,7 +184,7 @@ If SR-HazardMaker helps your work, please cite it:
   author  = {Taciroglu, E.},
   title   = {{SR-HazardMaker}},
   year    = {2026},
-  version = {0.3.1},
+  version = {0.3.2},
   doi     = {10.5281/zenodo.24356049},
   url     = {https://github.com/TRG-UCLA/SR-HazardMaker}
 }
